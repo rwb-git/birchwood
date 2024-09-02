@@ -141,7 +141,7 @@ const char* tr_td ="<tr align='left'><td colspan='13'>";
 
 const char* tr_td_half ="<tr align='left'><td colspan='6'>";
 
-const char* dream_host = "http://www.fork20.xyz/birchwood/";   //http://www.fork20.xyz/birchwood/water2_new_fake.php
+const char* dream_host = "http://www. your web site /birchwood/";   
 
 const char* x10 = "x10_test_esp8266/";
 
