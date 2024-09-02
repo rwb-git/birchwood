@@ -1,0 +1,352 @@
+3-12-2021 i moved here from gallons_esp.txt because that file had a confusing mixture of esp todo and php todo. SO THE TOP OF THIS FILE WILL BE DUPLICATED IN UP TO 3 PLACES:
+
+   gallons_esp.txt
+   this file, php_todo.txt
+   esp_todo.txt
+
+
+
+
+
+
+
+
+
+
+2-20-2021
+
+gallons discussion:
+
+   esp won't lose all its pulse data when it resets like android tablet did every time I reprogrammed it. esp can of course have disasters.
+
+   simple approaches:
+
+      php stop pruning pulse file on every write. as soon as possible after midnight, maybe after a ping? but have to make sure i don't have two scripts editing the same file at once. the problem
+      with letting the pulse handler do it is that pulses might not arrive for several hours after midnight.
+
+         one way would be to let ping handle counting pulses whenever the date changes, but leave the file alone. change pulse prune code to no longer prune like all the others, to most recent 24 hours, but
+         to prune something much older
+
+      or this? on every pulse, pulse handler updates a daily_gallons file that simply counts all the pulses received on that day. any other script can read that file and if midnight has passed, update the 
+      main gallons file that has the last 30 days or whatever is used for the web page bar chart.
+
+      or esp simply handles all the work, and at midnight sends the new gallons value in repeatedly until there is an ack. <- this is 100x simpler than any php based counting. and esp will know about every 
+      pulse including any that php somehow misses. <<<< this is the way to do it. the only reason php counted before was the android restart issue which does not apply to esp. do this.
+
+         gallons_new.php appends to the files gallons_new and gallons_all
+
+         android sends several days worth of data every midnight. this helps if web is down for a long time. maybe esp will keep track of acks and only send data that has not been acked, but the old
+         code will be nice to keep around. just skip the part about counting online pulses and leave the pulse file and pulse code simple for now.
+
+         so if I do this:
+
+            use existing online gallons_new.php except delete the part that counts pulses
+
+            esp simply sends url to gallons_new.php same as android. hell, maybe do the exact same thing and always send the last week or so. in that case no need for complex code keeping track of what web knows and what
+            web doesn't.
+
+            add an esp button to re-send the gallons url at any time. cool way to check, and easy way to fix in case i wake up and somehow the data isn't updated
+
+
+
+      gallons_new looks like this:
+
+            2021045 113    = year then day of year padded with zeros
+            2021046 119
+            2021047 120
+            2021048 120
+
+      i think android sends url that looks like this: g=datecode_gallons_datecode_gallons_datecode_gallons... with newer datecode coming last
+
+      >>> write a button on esp that increments a fake datecode and sends random gallons values to confirm the code works. hell, test the scenario where multiple days are missed by php <<<<
+
+      the code from gallons_new.php that reads the url
+
+               $gpm=$_GET["g"];
+
+               $data = explode("_", trim($gpm));   // datecode gallons datecode gallons etc. I'm not sure i should trim() this
+
+               $index = 0;
+
+               $new_codes = array();
+
+               $new_gallons = array();
+
+               foreach ($data as &$number){
+
+                  if ($index == 0){
+
+                     $index = 1;
+
+
+                     if ($number > 0){             // it reads a blank value at the end. maybe because I end the url with a _
+
+                        $new_codes[] = $number;
+
+                        $url_datecode = $number;  // this will save the final datecode which will be used to see if pulse file has been shifted for midnight
+                     }
+
+                  } else {
+                     
+                     $index = 0;
+
+                     $new_gallons[] = $number;
+
+                     $save_new_gallons = $number;        // this will have the final value
+                  }
+               }
+
+
+               $use_this = $save_new_gallons; // new php will always use value from esp8266
+
+
+
+
+
+2-21-2021
+
+
+   php calculates gallons each day on some occurence:
+
+      nope not this first pulse
+
+      nope not this first access of web site
+
+      or do exact same as android, and do it on gallons packet from esp? why not keep same code exactly?
+
+         php does not need to calculate because esp does not forget pulse info like android did unless something crazy happens. if i coded to handle every crazy failure i'd never finish
+
+   right now esp does this:
+
+      totally ignores master seconds since midnight
+
+      stores local seconds + 86400
+
+      prunes at midnight: deletes all records < 86400. saves all other values after subtracting 86400. so, if this works perfectly it saves all of yesterdays pulses. worst case when power has not failed will miss one pulse but
+      the odds of that are slim. if power has been out or my system has issues it might miss pulses anyway. but i guess the issue is this:
+
+         if power is out for 6 hours from 11 pm to 5 am then maybe there were no pulses to miss. BUT IT'S A MISTAKE to use 86400 in this case. fix this no matter what. in this example here it will discard 5 hours of yesterday's
+         pulses which are never needed for plotting, but are needed for calculating gallons. DERP, JUST CALC gallons before pruning, or in the same operation so the lost data will be counted. and how is it that esp has pulse
+         data that it has not already counted. 
+
+      sends simple notification to php
+
+         php does this in pulse.php:
+
+            get rid of records older than 86400
+
+            save new record as true millenium
+
+
+
+
+
+--- auto_fetch ---
+
+   if i have two local boxes sending data to web, like i do now with android and esp, can online find the best data source and serve it
+
+      if data is old for one, check the other and use it
+
+      where would this decision be made? html page has img-src php file, so that php file handles it?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+online tank plot is too ragged
+
+
+
+
+
+
+
+
+colors for weekdays are different on x10 vs normal
+
+
+
+
+figure out how to smooth tank plot. one data point every five or ten minutes then smooth the curve between or whatever
+
+
+
+
+
+
+time shift is wrong when data is old. it shifts dream too much. the flow blocks are perfectly shifted, but the legend is shifted too much
+
+time_block.php reads old file wrong
+
+
+
+
+
+
+does my code read_time_file twice? is this new or old too
+
+online switching sources for jay
+
+   let me easily edit a small text file to do it
+
+   let esp have a button to do it
+
+   test it once esp online files are clean enough
+
+   test it first in another fake web page that can access either source?
+
+   it seems to work except EVERY include in the other directory has to specify the path
+
+      and if this isn't based on the root then it won't work from within that directory, but i suppose i can handle that, but it might be nice to fix that messy part
+
+
+
+
+maybe get crazy and look at data is old, and if one is good and one is bad auto switch
+
+
+
+the new pulse-float code fills the plot with float if any pulses. the problem is right now a fake pulse came through, so maybe if the pulse count is ridiculously low (?) and no float events then don't draw float at all. the old code is ok in that respect.
+
+to use files in a subdirectory:
+
+   any html url link anywhere will point to something in the top directory. no way to avoid this.
+
+   that file in the top dir has to have php code to chdir and then the subdirectory files work fine
+
+   so, the old main menu is in the top dir and can be used by any file any where. 
+
+      any links in it that go to sub dirs have to use php switching code in a top-dir file
+
+   in the future when i want to silently link to either top dir or sub dir, the php switcher code in the top dir will look at a small text file in the top dir, and that switching code can use top dir or chdir to subdir
+
+   pulse plots have the four pulse links and the main menu link. all will go back to code in the top dir
+
+      to be just like it was before, the top dir pulse links will simply chdir to the sub dir. but i should go ahead and put the switcher code that reads the source_select.txt file because eventually that's how they will
+      work. just like all the switcher links, eventually they will go to the top dir android data or the sub dir esp data. 
+
+      i repeat: eventually every url link in any menu will go to a simple top dir switcher file that selects top dir android data or sub dir esp data. simple, actually.
+
+      and i think the switcher files will be same on any host since they only select top dir or sub dir, and if i name the sub dir the same then the same switcher code works, and i need these:
+
+         huge 
+
+         simple
+
+         p1
+         p2
+         p4
+         p8
+
+>>> from here on out, i think ALL the files on biz and dream will be the same. MENU has full links to both sites so it's common. no other files need full links - that was a mistake on my part. <<<
+>>> from here on out, AND THIS INCLUDES the retarded water2.php vs. water2_new_fake.php, but don't we all have bookmarks to that shit? the new menus use switcher code, but what about jay, hunter, and rod bookmarks?
+>>> yes, my phone bookmarks to water2_new_fake.php on fork20, so that has to still work. if someone were to bookmark the new link after everything is switched, then that would be switch.php on both sites, and goes
+>>> to water2.php on both sites.
+
+>>> so don't forget that i HAVE TO MAINTAIN water2 and water2_new_fake on fork20 FOREVER.
+
+
+
+   for now it has to be more complex: all the old menus need to use the old files. the only switcher code should be on menu2 and x10 files 
+
+      this means different versions of waterp8 4 2 1 in top dir and x10 dir. top dir are old style.
+
+      x10 dir pulse files waterp8 etc will be accessible through menu2 and then they will all use switcher code for the 4 pulse links
+
+
+
+
+>>>>       HTML GOES BACK TO THE TOP DIR    <<<<
+
+make jay's links work with either source
+
+   done: also make water2 and water2_new_fake go to same code = water2_new_fake -> water2
+
+   to make old bookmarks switch to either site, i have to change the old files to be simple switcher files that choose the desired source, similar to how menu2 works, except the files
+   won't be "switch***" but will have the old file name, and the old file contents will be somewhere else. 
+      
+      test this first: dummy.php tries to include water2.
+
+         but didn't i just do that on dream to get rid of water2_...fake?
+
+
+this is water2_new_fake.php
+
+      <?php
+
+         include "water2.php"; // these should never have had different names. keep this one because we all have bookmarks to dream-water2_new_fake and to biz-water2, so i need both to work
+      ?>
+
+this is switchp1.php
+
+      <?php
+
+         $fpcut = fopen("source_select.txt", "r");
+
+         $select = fgets($fpcut); 
+         
+         fclose($fpcut);
+
+         if ($select != 1){
+            
+            chdir('x10_test_esp8266');
+         }
+
+         include("waterp1.php"); 
+          
+      ?> 
+
+so, the switch comes in water2.php, so that old bookmarks to water2_new... and water2.php will both wind up there, and the two sites are most similar
+
+water.php      simple site will have switch code very much like switch_simple.php
+
+water2 and water2_new_fake will be like switch.php
+
+waterp1..8 will be like switchp1..8
+
+
+menu2.html, just the links:
+           
+      <a href="http://birchwood.c1.biz/water.php">c1.biz Simple</a>
+
+      <a href="http://birchwood.c1.biz/water2.php">c1.biz Huge</a>
+
+      <a href="http://birchwood.c1.biz/waterp8.php">c1.biz Pulse</a>
+
+      <a href="http://birchwood.c1.biz/switch_simple.php">biz switch simple</a>
+
+      <a href="http://birchwood.c1.biz/switch.php">biz switch huge</a>
+
+      <a href="http://birchwood.c1.biz/switchp8.php">biz switch pulse</a>
+
+      <a href="http://fork20.xyz/birchwood/water.php">Fork Simple</a>
+
+      <a href="http://fork20.xyz/birchwood/water2_new_fake.php">Fork Huge</a>
+
+      <a href="http://fork20.xyz/birchwood/waterp8.php">Fork Pulse</a>
+
+      <a href="http://fork20.xyz/birchwood/switch_simple.php"> fork switch simple</a>
+
+      <a href="http://fork20.xyz/birchwood/switch.php"> fork switch huge</a>
+
+      <a href="http://fork20.xyz/birchwood/switchp8.php"> fork switch pulse</a>
+
+
+
+
+
+
+
+
+

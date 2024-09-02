@@ -1,0 +1,123 @@
+start log
+
+code  2023305   gallons 105
+code  2023306   gallons 109
+code  2023307   gallons 126
+code  2023308   gallons 160
+code  2023309   gallons 138
+code  2023310   gallons 108
+code  2023311   gallons 129
+code  2023312   gallons 114
+code  2023313   gallons 123
+code  2023314   gallons 118
+code  2023315   gallons 106
+code  2023316   gallons 139
+code  2023317   gallons 96
+code  2023318   gallons 143
+code  2023319   gallons 122
+code  2023320   gallons 105
+code  2023321   gallons 97
+code  2023322   gallons 128
+code  2023323   gallons 138
+code  2023324   gallons 113
+code  2023325   gallons 109
+code  2023326   gallons 123
+code  2023327   gallons 143
+code  2023328   gallons 123
+code  2023329   gallons 148
+code  2023330   gallons 125
+code  2023331   gallons 104
+code  2023332   gallons 125
+code  2023333   gallons 145
+code  2023334   gallons 121
+code  2023335   gallons 101
+code  2023336   gallons 149
+code  2023337   gallons 148
+code  2023338   gallons 122
+code  2023339   gallons 110
+code  2023340   gallons 105
+code  2023341   gallons 123
+code  2023342   gallons 114
+code  2023343   gallons 118
+code  2023344   gallons 141
+code  2023345   gallons 118
+code  2023346   gallons 125
+code  2023347   gallons 129
+code  2023348   gallons 117
+code  2023349   gallons 108
+code  2023350   gallons 124
+code  2023351   gallons 160
+code  2023352   gallons 119
+code  2023353   gallons 135
+code  2023354   gallons 126
+code  2023355   gallons 125
+code  2023356   gallons 113
+code  2023357   gallons 130
+code  2023358   gallons 119
+code  2023359   gallons 129
+code  2023360   gallons 107
+code  2023361   gallons 125
+code  2023362   gallons 125
+code  2023363   gallons 135
+code  2023364   gallons 109
+code  2023365   gallons 141
+create using day 364   initial date33  31 2023  not leap year date33  31    final date33  31
+
+create using day 363   initial date33  30 2023  not leap year date33  30    final date33  30
+
+create using day 362   initial date33  29 2023  not leap year date33  29    final date33  29
+
+create using day 361   initial date33  28 2023  not leap year date33  28    final date33  28
+
+create using day 360   initial date33  27 2023  not leap year date33  27    final date33  27
+
+create using day 359   initial date33  26 2023  not leap year date33  26    final date33  26
+
+create using day 358   initial date33  25 2023  not leap year date33  25    final date33  25
+
+create using day 357   initial date33  24 2023  not leap year date33  24    final date33  24
+
+create using day 356   initial date33  23 2023  not leap year date33  23    final date33  23
+
+create using day 355   initial date33  22 2023  not leap year date33  22    final date33  22
+
+create using day 354   initial date33  21 2023  not leap year date33  21    final date33  21
+
+create using day 353   initial date33  20 2023  not leap year date33  20    final date33  20
+
+create using day 352   initial date33  19 2023  not leap year date33  19    final date33  19
+
+create using day 351   initial date33  18 2023  not leap year date33  18    final date33  18
+
+create using day 350   initial date33  17 2023  not leap year date33  17    final date33  17
+
+create using day 349   initial date33  16 2023  not leap year date33  16    final date33  16
+
+create using day 348   initial date33  15 2023  not leap year date33  15    final date33  15
+
+create using day 347   initial date33  14 2023  not leap year date33  14    final date33  14
+
+create using day 346   initial date33  13 2023  not leap year date33  13    final date33  13
+
+create using day 345   initial date33  12 2023  not leap year date33  12    final date33  12
+
+create using day 344   initial date33  11 2023  not leap year date33  11    final date33  11
+
+create using day 343   initial date33  10 2023  not leap year date33  10    final date33  10
+
+create using day 342   initial date33  09 2023  not leap year date33  09    final date33  09
+
+create using day 341   initial date33  08 2023  not leap year date33  08    final date33  08
+
+create using day 340   initial date33  07 2023  not leap year date33  07    final date33  07
+
+create using day 339   initial date33  06 2023  not leap year date33  06    final date33  06
+
+create using day 338   initial date33  05 2023  not leap year date33  05    final date33  05
+
+create using day 337   initial date33  04 2023  not leap year date33  04    final date33  04
+
+create using day 336   initial date33  03 2023  not leap year date33  03    final date33  03
+
+create using day 335   initial date33  02 2023  not leap year date33  02    final date33  02
+

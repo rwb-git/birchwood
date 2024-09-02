@@ -1,0 +1,492 @@
+start log
+
+from ping: current mil 1665236942  mil24 = 24 hours ago 1665150542
+input 1665236651 292 
+
+now convert all of those to proper millens, and add 5 hours to change EST to UTC
+new millens 1665236651
+
+new millens 1665236943
+
+old file buffer 1665150371 1665150658 1665150963 1665151274 1665151596 1665151933 1665152289 1665152617 1665152969 1665153330 1665153760 1665154210 1665154661 1665154998 1665155353 1665155712 1665156094 1665156441 1665156819 1665157186 1665157642 1665171140 1665171335 1665171537 1665171751 1665171975 1665172211 1665172514 1665172848 1665173226 1665173620 1665173923 1665174250 1665174594 1665174940 1665175294 1665175669 1665176071 1665176557 1665177049 1665177424 1665177799 1665178180 1665178566 1665178954 1665179346 1665179809 1665180308 1665180795 1665181154 1665181545 1665181941 1665182338 1665182738 1665183142 1665183545 1665183951 1665184363 1665184850 1665185336 1665185831 1665186304 1665186684 1665187089 1665187497 1665187913 1665188320 1665188733 1665189168 1665189572 1665189997 1665190437 1665190934 1665191435 1665191853 1665199685 1665199915 1665200167 1665200431 1665200713 1665201008 1665201356 1665201758 1665202194 1665202591 1665202937 1665203302 1665203672 1665204044 1665204420 1665204817 1665205289 1665205764 1665206182 1665206552 1665230227 1665230414 1665230613 1665230826 1665231085 1665231355 1665231640 1665231948 1665232229 1665232477 1665232732 1665232989 1665233253 1665233526 1665233817 1665234123 1665234412 1665234701 1665234998 1665235324 1665235762 1665236209 1665236651 
+
+old millens 1665150371
+
+old millens 1665150658
+
+old millens 1665150963
+
+old millens 1665151274
+
+old millens 1665151596
+
+old millens 1665151933
+
+old millens 1665152289
+
+old millens 1665152617
+
+old millens 1665152969
+
+old millens 1665153330
+
+old millens 1665153760
+
+old millens 1665154210
+
+old millens 1665154661
+
+old millens 1665154998
+
+old millens 1665155353
+
+old millens 1665155712
+
+old millens 1665156094
+
+old millens 1665156441
+
+old millens 1665156819
+
+old millens 1665157186
+
+old millens 1665157642
+
+old millens 1665171140
+
+old millens 1665171335
+
+old millens 1665171537
+
+old millens 1665171751
+
+old millens 1665171975
+
+old millens 1665172211
+
+old millens 1665172514
+
+old millens 1665172848
+
+old millens 1665173226
+
+old millens 1665173620
+
+old millens 1665173923
+
+old millens 1665174250
+
+old millens 1665174594
+
+old millens 1665174940
+
+old millens 1665175294
+
+old millens 1665175669
+
+old millens 1665176071
+
+old millens 1665176557
+
+old millens 1665177049
+
+old millens 1665177424
+
+old millens 1665177799
+
+old millens 1665178180
+
+old millens 1665178566
+
+old millens 1665178954
+
+old millens 1665179346
+
+old millens 1665179809
+
+old millens 1665180308
+
+old millens 1665180795
+
+old millens 1665181154
+
+old millens 1665181545
+
+old millens 1665181941
+
+old millens 1665182338
+
+old millens 1665182738
+
+old millens 1665183142
+
+old millens 1665183545
+
+old millens 1665183951
+
+old millens 1665184363
+
+old millens 1665184850
+
+old millens 1665185336
+
+old millens 1665185831
+
+old millens 1665186304
+
+old millens 1665186684
+
+old millens 1665187089
+
+old millens 1665187497
+
+old millens 1665187913
+
+old millens 1665188320
+
+old millens 1665188733
+
+old millens 1665189168
+
+old millens 1665189572
+
+old millens 1665189997
+
+old millens 1665190437
+
+old millens 1665190934
+
+old millens 1665191435
+
+old millens 1665191853
+
+old millens 1665199685
+
+old millens 1665199915
+
+old millens 1665200167
+
+old millens 1665200431
+
+old millens 1665200713
+
+old millens 1665201008
+
+old millens 1665201356
+
+old millens 1665201758
+
+old millens 1665202194
+
+old millens 1665202591
+
+old millens 1665202937
+
+old millens 1665203302
+
+old millens 1665203672
+
+old millens 1665204044
+
+old millens 1665204420
+
+old millens 1665204817
+
+old millens 1665205289
+
+old millens 1665205764
+
+old millens 1665206182
+
+old millens 1665206552
+
+old millens 1665230227
+
+old millens 1665230414
+
+old millens 1665230613
+
+old millens 1665230826
+
+old millens 1665231085
+
+old millens 1665231355
+
+old millens 1665231640
+
+old millens 1665231948
+
+old millens 1665232229
+
+old millens 1665232477
+
+old millens 1665232732
+
+old millens 1665232989
+
+old millens 1665233253
+
+old millens 1665233526
+
+old millens 1665233817
+
+old millens 1665234123
+
+old millens 1665234412
+
+old millens 1665234701
+
+old millens 1665234998
+
+old millens 1665235324
+
+old millens 1665235762
+
+old millens 1665236209
+
+old millens 1665236651
+
+old num recs 118
+
+first new millen 1665236651
+hi test 1665236681    lo test 1665236621
+testing i = 0  old millens 1665150371
+testing i = 1  old millens 1665150658
+testing i = 2  old millens 1665150963
+testing i = 3  old millens 1665151274
+testing i = 4  old millens 1665151596
+testing i = 5  old millens 1665151933
+testing i = 6  old millens 1665152289
+testing i = 7  old millens 1665152617
+testing i = 8  old millens 1665152969
+testing i = 9  old millens 1665153330
+testing i = 10  old millens 1665153760
+testing i = 11  old millens 1665154210
+testing i = 12  old millens 1665154661
+testing i = 13  old millens 1665154998
+testing i = 14  old millens 1665155353
+testing i = 15  old millens 1665155712
+testing i = 16  old millens 1665156094
+testing i = 17  old millens 1665156441
+testing i = 18  old millens 1665156819
+testing i = 19  old millens 1665157186
+testing i = 20  old millens 1665157642
+testing i = 21  old millens 1665171140
+testing i = 22  old millens 1665171335
+testing i = 23  old millens 1665171537
+testing i = 24  old millens 1665171751
+testing i = 25  old millens 1665171975
+testing i = 26  old millens 1665172211
+testing i = 27  old millens 1665172514
+testing i = 28  old millens 1665172848
+testing i = 29  old millens 1665173226
+testing i = 30  old millens 1665173620
+testing i = 31  old millens 1665173923
+testing i = 32  old millens 1665174250
+testing i = 33  old millens 1665174594
+testing i = 34  old millens 1665174940
+testing i = 35  old millens 1665175294
+testing i = 36  old millens 1665175669
+testing i = 37  old millens 1665176071
+testing i = 38  old millens 1665176557
+testing i = 39  old millens 1665177049
+testing i = 40  old millens 1665177424
+testing i = 41  old millens 1665177799
+testing i = 42  old millens 1665178180
+testing i = 43  old millens 1665178566
+testing i = 44  old millens 1665178954
+testing i = 45  old millens 1665179346
+testing i = 46  old millens 1665179809
+testing i = 47  old millens 1665180308
+testing i = 48  old millens 1665180795
+testing i = 49  old millens 1665181154
+testing i = 50  old millens 1665181545
+testing i = 51  old millens 1665181941
+testing i = 52  old millens 1665182338
+testing i = 53  old millens 1665182738
+testing i = 54  old millens 1665183142
+testing i = 55  old millens 1665183545
+testing i = 56  old millens 1665183951
+testing i = 57  old millens 1665184363
+testing i = 58  old millens 1665184850
+testing i = 59  old millens 1665185336
+testing i = 60  old millens 1665185831
+testing i = 61  old millens 1665186304
+testing i = 62  old millens 1665186684
+testing i = 63  old millens 1665187089
+testing i = 64  old millens 1665187497
+testing i = 65  old millens 1665187913
+testing i = 66  old millens 1665188320
+testing i = 67  old millens 1665188733
+testing i = 68  old millens 1665189168
+testing i = 69  old millens 1665189572
+testing i = 70  old millens 1665189997
+testing i = 71  old millens 1665190437
+testing i = 72  old millens 1665190934
+testing i = 73  old millens 1665191435
+testing i = 74  old millens 1665191853
+testing i = 75  old millens 1665199685
+testing i = 76  old millens 1665199915
+testing i = 77  old millens 1665200167
+testing i = 78  old millens 1665200431
+testing i = 79  old millens 1665200713
+testing i = 80  old millens 1665201008
+testing i = 81  old millens 1665201356
+testing i = 82  old millens 1665201758
+testing i = 83  old millens 1665202194
+testing i = 84  old millens 1665202591
+testing i = 85  old millens 1665202937
+testing i = 86  old millens 1665203302
+testing i = 87  old millens 1665203672
+testing i = 88  old millens 1665204044
+testing i = 89  old millens 1665204420
+testing i = 90  old millens 1665204817
+testing i = 91  old millens 1665205289
+testing i = 92  old millens 1665205764
+testing i = 93  old millens 1665206182
+testing i = 94  old millens 1665206552
+testing i = 95  old millens 1665230227
+testing i = 96  old millens 1665230414
+testing i = 97  old millens 1665230613
+testing i = 98  old millens 1665230826
+testing i = 99  old millens 1665231085
+testing i = 100  old millens 1665231355
+testing i = 101  old millens 1665231640
+testing i = 102  old millens 1665231948
+testing i = 103  old millens 1665232229
+testing i = 104  old millens 1665232477
+testing i = 105  old millens 1665232732
+testing i = 106  old millens 1665232989
+testing i = 107  old millens 1665233253
+testing i = 108  old millens 1665233526
+testing i = 109  old millens 1665233817
+testing i = 110  old millens 1665234123
+testing i = 111  old millens 1665234412
+testing i = 112  old millens 1665234701
+testing i = 113  old millens 1665234998
+testing i = 114  old millens 1665235324
+testing i = 115  old millens 1665235762
+testing i = 116  old millens 1665236209
+testing i = 117  old millens 1665236651
+match 117
+
+match 117
+
+save rec from old data: 1665150658
+save rec from old data: 1665150963
+save rec from old data: 1665151274
+save rec from old data: 1665151596
+save rec from old data: 1665151933
+save rec from old data: 1665152289
+save rec from old data: 1665152617
+save rec from old data: 1665152969
+save rec from old data: 1665153330
+save rec from old data: 1665153760
+save rec from old data: 1665154210
+save rec from old data: 1665154661
+save rec from old data: 1665154998
+save rec from old data: 1665155353
+save rec from old data: 1665155712
+save rec from old data: 1665156094
+save rec from old data: 1665156441
+save rec from old data: 1665156819
+save rec from old data: 1665157186
+save rec from old data: 1665157642
+save rec from old data: 1665171140
+save rec from old data: 1665171335
+save rec from old data: 1665171537
+save rec from old data: 1665171751
+save rec from old data: 1665171975
+save rec from old data: 1665172211
+save rec from old data: 1665172514
+save rec from old data: 1665172848
+save rec from old data: 1665173226
+save rec from old data: 1665173620
+save rec from old data: 1665173923
+save rec from old data: 1665174250
+save rec from old data: 1665174594
+save rec from old data: 1665174940
+save rec from old data: 1665175294
+save rec from old data: 1665175669
+save rec from old data: 1665176071
+save rec from old data: 1665176557
+save rec from old data: 1665177049
+save rec from old data: 1665177424
+save rec from old data: 1665177799
+save rec from old data: 1665178180
+save rec from old data: 1665178566
+save rec from old data: 1665178954
+save rec from old data: 1665179346
+save rec from old data: 1665179809
+save rec from old data: 1665180308
+save rec from old data: 1665180795
+save rec from old data: 1665181154
+save rec from old data: 1665181545
+save rec from old data: 1665181941
+save rec from old data: 1665182338
+save rec from old data: 1665182738
+save rec from old data: 1665183142
+save rec from old data: 1665183545
+save rec from old data: 1665183951
+save rec from old data: 1665184363
+save rec from old data: 1665184850
+save rec from old data: 1665185336
+save rec from old data: 1665185831
+save rec from old data: 1665186304
+save rec from old data: 1665186684
+save rec from old data: 1665187089
+save rec from old data: 1665187497
+save rec from old data: 1665187913
+save rec from old data: 1665188320
+save rec from old data: 1665188733
+save rec from old data: 1665189168
+save rec from old data: 1665189572
+save rec from old data: 1665189997
+save rec from old data: 1665190437
+save rec from old data: 1665190934
+save rec from old data: 1665191435
+save rec from old data: 1665191853
+save rec from old data: 1665199685
+save rec from old data: 1665199915
+save rec from old data: 1665200167
+save rec from old data: 1665200431
+save rec from old data: 1665200713
+save rec from old data: 1665201008
+save rec from old data: 1665201356
+save rec from old data: 1665201758
+save rec from old data: 1665202194
+save rec from old data: 1665202591
+save rec from old data: 1665202937
+save rec from old data: 1665203302
+save rec from old data: 1665203672
+save rec from old data: 1665204044
+save rec from old data: 1665204420
+save rec from old data: 1665204817
+save rec from old data: 1665205289
+save rec from old data: 1665205764
+save rec from old data: 1665206182
+save rec from old data: 1665206552
+save rec from old data: 1665230227
+save rec from old data: 1665230414
+save rec from old data: 1665230613
+save rec from old data: 1665230826
+save rec from old data: 1665231085
+save rec from old data: 1665231355
+save rec from old data: 1665231640
+save rec from old data: 1665231948
+save rec from old data: 1665232229
+save rec from old data: 1665232477
+save rec from old data: 1665232732
+save rec from old data: 1665232989
+save rec from old data: 1665233253
+save rec from old data: 1665233526
+save rec from old data: 1665233817
+save rec from old data: 1665234123
+save rec from old data: 1665234412
+save rec from old data: 1665234701
+save rec from old data: 1665234998
+save rec from old data: 1665235324
+save rec from old data: 1665235762
+save rec from old data: 1665236209
+save rec from url data: 1665236651
+save rec from url data: 1665236943
