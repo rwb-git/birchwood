@@ -1,0 +1,848 @@
+3-12-2021 stop using this file and start using esp_todo.txt, php_todo.txt
+3-12-2021 stop using this file and start using esp_todo.txt, php_todo.txt
+3-12-2021 stop using this file and start using esp_todo.txt, php_todo.txt
+
+
+
+
+
+
+
+
+3-8-2021 it was having lots of trouble after boot - ntp and web not responding while wifi was fine to show me the web page. i think i finally fixed it by moving the order of things in setup(). strange that it worked perfectly for
+weeks then somehow i must have done something. so be careful with setup() order. maybe put delay() between things if needed, but for now it seems fixed the way it is.
+
+
+2-20-2021
+
+gallons discussion:
+
+   esp won't lose all its pulse data when it resets like android tablet did every time I reprogrammed it. esp can of course have disasters.
+
+   simple approaches:
+
+      php stop pruning pulse file on every write. as soon as possible after midnight, maybe after a ping? but have to make sure i don't have two scripts editing the same file at once. the problem
+      with letting the pulse handler do it is that pulses might not arrive for several hours after midnight.
+
+         one way would be to let ping handle counting pulses whenever the date changes, but leave the file alone. change pulse prune code to no longer prune like all the others, to most recent 24 hours, but
+         to prune something much older
+
+      or this? on every pulse, pulse handler updates a daily_gallons file that simply counts all the pulses received on that day. any other script can read that file and if midnight has passed, update the 
+      main gallons file that has the last 30 days or whatever is used for the web page bar chart.
+
+      or esp simply handles all the work, and at midnight sends the new gallons value in repeatedly until there is an ack. <- this is 100x simpler than any php based counting. and esp will know about every 
+      pulse including any that php somehow misses. <<<< this is the way to do it. the only reason php counted before was the android restart issue which does not apply to esp. do this.
+
+         gallons_new.php appends to the files gallons_new and gallons_all
+
+         android sends several days worth of data every midnight. this helps if web is down for a long time. maybe esp will keep track of acks and only send data that has not been acked, but the old
+         code will be nice to keep around. just skip the part about counting online pulses and leave the pulse file and pulse code simple for now.
+
+         so if I do this:
+
+            use existing online gallons_new.php except delete the part that counts pulses
+
+            esp simply sends url to gallons_new.php same as android. hell, maybe do the exact same thing and always send the last week or so. in that case no need for complex code keeping track of what web knows and what
+            web doesn't.
+
+            add an esp button to re-send the gallons url at any time. cool way to check, and easy way to fix in case i wake up and somehow the data isn't updated
+
+
+
+      gallons_new looks like this:
+
+            2021045 113    = year then day of year padded with zeros
+            2021046 119
+            2021047 120
+            2021048 120
+
+      i think android sends url that looks like this: g=datecode_gallons_datecode_gallons_datecode_gallons... with newer datecode coming last
+
+      >>> write a button on esp that increments a fake datecode and sends random gallons values to confirm the code works. hell, test the scenario where multiple days are missed by php <<<<
+
+      the code from gallons_new.php that reads the url
+
+               $gpm=$_GET["g"];
+
+               $data = explode("_", trim($gpm));   // datecode gallons datecode gallons etc. I'm not sure i should trim() this
+
+               $index = 0;
+
+               $new_codes = array();
+
+               $new_gallons = array();
+
+               foreach ($data as &$number){
+
+                  if ($index == 0){
+
+                     $index = 1;
+
+
+                     if ($number > 0){             // it reads a blank value at the end. maybe because I end the url with a _
+
+                        $new_codes[] = $number;
+
+                        $url_datecode = $number;  // this will save the final datecode which will be used to see if pulse file has been shifted for midnight
+                     }
+
+                  } else {
+                     
+                     $index = 0;
+
+                     $new_gallons[] = $number;
+
+                     $save_new_gallons = $number;        // this will have the final value
+                  }
+               }
+
+
+               $use_this = $save_new_gallons; // new php will always use value from esp8266
+
+
+
+
+
+2-21-2021
+
+   same as android, esp only sends small packet as long as php acks
+
+      but esp can dump all the way back to yesterday midnight if needed, or maybe just back to last ack
+
+   php calculates gallons each day on some occurence:
+
+      nope not this first pulse
+
+      nope not this first access of web site
+
+      or do exact same as android, and do it on gallons packet from esp? why not keep same code exactly?
+
+         php does not need to calculate because esp does not forget pulse info like android did unless something crazy happens. if i coded to handle every crazy failure i'd never finish
+
+   right now esp does this:
+
+      totally ignores master seconds since midnight
+
+      stores local seconds + 86400
+
+      prunes at midnight: deletes all records < 86400. saves all other values after subtracting 86400. so, if this works perfectly it saves all of yesterdays pulses. worst case when power has not failed will miss one pulse but
+      the odds of that are slim. if power has been out or my system has issues it might miss pulses anyway. but i guess the issue is this:
+
+         if power is out for 6 hours from 11 pm to 5 am then maybe there were no pulses to miss. BUT IT'S A MISTAKE to use 86400 in this case. fix this no matter what. in this example here it will discard 5 hours of yesterday's
+         pulses which are never needed for plotting, but are needed for calculating gallons. DERP, JUST CALC gallons before pruning, or in the same operation so the lost data will be counted. and how is it that esp has pulse
+         data that it has not already counted. 
+
+      sends simple notification to php
+
+         php does this in pulse.php:
+
+            get rid of records older than 86400
+
+            save new record as true millenium
+
+
+
+
+
+--- auto_fetch ---
+
+   if i have two local boxes sending data to web, like i do now with android and esp, can online find the best data source and serve it
+
+      if data is old for one, check the other and use it
+
+      where would this decision be made? html page has img-src php file, so that php file handles it?
+
+--- multiple_esps ---
+
+   have toggle switches for these: (or do physical switches make any sense? i can use web page to tell esp to write to settings and even on reset it will remember. no need for switches?)
+
+      wifi on or not
+
+      if wifi on, both web and local or just local 10.0.0
+
+         this could be done via my internet browser if wifi is enabled by the first switch. obviously if wifi is totally off this section is moot, so this does not need a hardware switch
+
+      manage master 0x15 and clock or just listen passively
+
+         this will require coordination with local box old-style and perhaps android. ideally android would have a pref and would tell the local box what mode to use, instead of putting a switch on the box.
+
+         again, this could be done via web page. presumably any device controlling master will want to show me some info easily. if i change my mind it would be easy to add a switch, but remember that esp is gpio deprived
+
+--- things to do ---
+
+
+   what happens when no wifi? how easy to test this? unplug wifi is the simplest case, and that's mostly safe when no pulses are arriving, and supposedly is safe then as well with tablet. so do that, unplug wifi
+   for several minutes of testing, maybe 9, right after a packet arrives, and it will only miss one and that gives me 9 minutes to see what esp does. then connect wifi and get fork and biz back to normal, and 
+   repeat as many times as needed. the main thing is that esp not hang or crash if wifi stops, and esp resumes normal behavior when wifi comes back up.
+
+      2-23-2021 I used router login to block it. web page failed. waited 7 minutes and allowed. it showed one bad ping and no resets, so it looks like failed wifi is same as failed web sites, it just gets some sort
+      of http failure and carries on. at some point i might want to test with no power to wifi, but when would it ever occur that esp has power and wifi does not? the big UPS battery would have to die first.
+
+      or assign WiFi.disconnect() to a button? search for WiFi.begin() to make sure it's not fixed - experiments with this sucked
+
+      disconnect and settin mode off seemed to hang. i unplugged the wifi for a minute and it seemed to resume ok. but did the esp reset? do it again and check uptime before and after.
+
+         229 resets, 8:56 uptime. cycle. 229, 12:37, so it re-connects automatically and it seems that everything else is fine, like uart and xbee. 
+
+   fix all the infinite while() loops, like in rtc
+
+   delete dependency on counting millis? can I assume rtc will never fail? remember that long-term I want to have at least two systems running and storing all data locally, with one or more keeping php up to date
+
+   online php finds "best" data to show automatically. see above "auto_fetch"
+
+   need ping for biz and dream; right now it's mostly good for biz, i think
+
+   http_fail is set a lot but never used otherwise
+
+
+
+------- tomorrow look at all the files, and try to compare to online. i might need to change the file display to show decimal instead of hex -----------
+
+   float file got corrupted and stayed corrupted. do I need button to delete a file and add a good entry to it? how to handle this? 
+
+      or compare file size. if it's not integral value then maybe that's what happened to float.
+
+   better info displays:
+
+      one quick one to show what i look at all the time
+
+      cycle through others that show obscure data with enough explanation so i know why i display it; ping_web is an example of one that is confusing all the time
+
+   as soon as esp settle down and has reliable web pages, work on web page switcher that automatically changes, or at least document a simple way for me to manually switch over without having to frantically figure out how to do it
+   as soon as esp settle down and has reliable web pages, work on web page switcher that automatically changes, or at least document a simple way for me to manually switch over without having to frantically figure out how to do it
+   as soon as esp settle down and has reliable web pages, work on web page switcher that automatically changes, or at least document a simple way for me to manually switch over without having to frantically figure out how to do it
+
+
+   just check npt at midnight. and fix rtc if error > 10 seconds? otherwise use rtc for everything except crude shit that can use millis(). and forget about millis() clock fix? if I rely on rtc and rtc dies, i don't want to have
+   tons of code to try to keep going with millis() do I? or have a generic time function that uses rtc when it's good, syncs today_seconds when rtc is good, but otherwise can function with dead rtc but puts warning on screen. or
+   does Wire.h hang if rtc is not there? very easy to test a crude thing where rtc fails
+
+      1. test rtc failure. use the rtc epoch to see if it hangs
+
+
+               yme 1613952000  rtc on
+               yme 1014076800  pulled sda and scl
+               yme 1014076800  ""
+               yme 1613952000  rtc back on
+
+               it did not seem to hang at all. where did the number come from? if rtc does not ack, wire.h must ignore it. cool
+
+         scan_for_rtc() works. I could go full autismo and compare the time roughly to that of todays_seconds, which wouldn't be that hard
+
+      2. try to write the generic time function
+
+         if rtc acks scan, get time and convert to todays_seconds_rtc. if that's within 1 minute of todays_seconds use rtc 
+
+
+         use rtc when available, otherwise millis()
+
+         use npt once per day to fix rtc and millis()
+
+android app bug: biz was off line 8 hours. all the other data recovered it seems, but gallons was not updated. 
+
+maybe web pages separate info into categories
+
+   time and date, npt, rtc, millis
+
+   uart stuff
+
+   online url acks and stuff, pings
+
+   file info
+
+   ram heap resets other esp info
+
+   rpi temperature and ack
+
+   tank, status, last pulse, gallons today, yesterday, system data
+
+handle one major topic at a time? 
+
+   reset recovery is a major mess that could take days to really think through. don't get carried away with bullshit like repeated quick resets.
+
+   online web page can use either data source. manual at first, so it's easy for me to fix dead tablet. automatic later on when i have multiple esps and tablet
+
+   separate displays for me to look at locally
+
+   use xeep in rtc module for some sort of failure recovery, or is this stupid? in what way could it help esp handle routine things like reset? xeep is same as esp flash, 1 million writes.
+
+   there is a bug when no datecode file exists that screws up the first one, maybe when the second is inserted, but it seems ok after a few days. 
+
+      maybe change the name of the file to experiment without hurting the normal file if it works correctly tonight
+
+      and i put a good string at the top of the file if nothing works and i screw up the normal file
+
+   need to read gallons_send_timer on reset? yes. add that
+
+   I don't know for sure how to use strdup, so watch heap over time, and remember it's only 60 bytes each night if it leaks, so watch for that
+
+      it's probably ok. heap start does not change when i parse datecodes over and over. for proof, remove the "free()" and see. heap start drops every time. so "free" is working correctly and strdup is ok.
+
+   did it send wrong doy last night? also, the time the file changed on biz says 00:37 while the other android says 5:00, and when i edit a file it shows +5 hours. so that implies the datecodes were
+   sent at 7, meaning probably by me. so why does log show ack 200 after pruning? could it have been a few seconds before rtc midnight and it used the wrong doy so php did not write the file? also, the
+   esp datecodes show 054_103 which looks like wrong doy. today is 56 so that should say 55. esp online says 54_123 which looks like it ignored the url as it should. last clock error was -7 and
+   that is todays_seconds - npt. yes, it does everything in the wrong order. npt is checked after it thinks it's midnight, so it did the gallons 7 seconds too early
+
+      or did it? err = today - npt = -7
+      today + 7 = npt
+
+      today = 93 npt = 100
+
+      BUT THAT'S IRRELEVANT. doy is calculated when it checks npt later on
+
+
+   2-25-2021
+
+      yet another new paradigm and this one is good
+
+         every event is treated the same
+
+         every file has the last two events in same format so same code handles it, 8 chars, 2 chars
+
+            including pulses, which will have a dummy code, just so that the entire code base on esp and php is as simple as can be. bandwidth in 2021 is not an issue, and it appears that the esp file system can easily handle it
+
+         don't update esp file until ack is confirmed good or bad 3 times
+
+         nice thing about this is i can read entire file in one string to \n and then strip the last 10 characters or whatever to find the one record i want to preserve, no matter how large the file is
+
+            and if that record is blank or the file does not exist just create a file with the one new record
+
+         every event is sent three times if no ack, and if no ack for three tries, then set flag web_is_dead
+
+         if web_is_dead do nothing but use the normal ping. if it works then web is ok.
+
+         when web comes back up send every event type
+
+         on any url always simply send the entire file
+
+         the entire file is usually just the last two events, but when the web is dead every event is appended and none are culled
+
+         gallons is just another event that happens when the day changes
+
+         gallons are counted in a new file that is reset when the day changes, and the old value is saved in the datecodes file
+
+         on reset all files are sent. this eliminates all the recovery after reset nonsense. if it was dead for a week the old milleniums will not be plotted
+
+         sort of a different topic, but how hard to synchronize two esps so that when I switch from one to the other because the main one died overnight and the new one needs to dump
+
+            won't that mostly work itself out? if php gets two pulses too close together like 150 GPM it can iignore it, and repeated float events are harmless, same as everything else, right?
+
+   handle_seconds() needs to check leap year when millis is in charge
+
+   if on reset ntp and rtc are dead, make this really clear on web page, and in that case esp won't know the millenium. so what to do then since esp sends millenium to php? I guess the fact that esp CAN send to php means npt should work too, right?
+
+   rtc and ntp need to keep epoch up to date. or the function that gets it needs to do rtc, millis estimate, then npt in that order
+
+   on reset get millenium and doy from rtc or npt. if they fail just give up on gallons, and handle events. but if time is known, look at datecodes file to determine whether date changed since last datecode file write.if so, count gallons
+   for yesterday using milleniums, etc.
+
+
+
+
+ubuntu does not use ntpd. see timesyncd.conf in /etc/systemd/timesyncd.conf:
+
+      #  This file is part of systemd.
+      #
+      #  systemd is free software; you can redistribute it and/or modify it
+      #  under the terms of the GNU Lesser General Public License as published by
+      #  the Free Software Foundation; either version 2.1 of the License, or
+      #  (at your option) any later version.
+      #
+      # Entries in this file show the compile time defaults.
+      # You can change settings by editing this file.
+      # Defaults can be restored by simply deleting this file.
+      #
+      # See timesyncd.conf(5) for details.
+
+      [Time]
+      #NTP=
+      #FallbackNTP=ntp.ubuntu.com
+      #RootDistanceMaxSec=5
+      #PollIntervalMinSec=32
+      #PollIntervalMaxSec=2048
+
+
+if I'm synced to ntp why send any milleniums to php if url is faster than one second? do a test, and if urls go through in less than one second use dumb urls that let php do the timestamp. i will rarely have to send blocks of anything,
+and in those cases i will send all the timestamps. KISS
+
+   one way to do this test which would be simple would be to log every ping on both ends. 
+
+audit todays_seconds (used for everything) vs total_seconds (used for uptime only?)
+
+
+
+xbee reset line
+
+   leave it off for now, but when I hardwire i need to allow for it to be added easily. i wonder if the AT RS crap was the issue, or bad xbee, or noise or what? on the other hand just 
+   doing it might be the thing to do.
+
+
+
+
+
+verify new method to calc yesterday midnight from my_epoch   in  calc_yesterday_midnight_epoch(){
+
+      (deleted days of confusion)
+
+      tl,dr: try to summarize and see if this still makes sense tomorrow. if it does, put it in the code for future laughs. if it does not make sense tomorrow, work on it some more.
+
+         when i get ntp, i ask for a 5 hour offset from the gmt number. so, if it's 8 am gmt, they give me the epoch for 3 am gmt because it's 3 am here, EST. 
+
+         that's why any value i have for any time, if plugged into the online epoch calculator, will give a gmt time that agrees with the epoch i entered. yesterday midnight will be yesterday midnight in gmt terms.
+
+         I HAVE TO DO THAT so that all the utilities work without constantly having to adjust by 5 hours. mktime and gmtime both assume i live in GMT zone.
+
+         but when i deal with php, which actually uses GMT as-is, if i send my timestamp i have to adjust it, because something that happened at 3 am EST actually happened at 8 am GMT php time, and since some
+         of my code lets php use their timestamps, i have to adjust blocks of timestamps i send.
+
+
+
+
+
+gallons_new pruner is not very robust, or some sort of php bug? likely my stupid editing but still, how did it happen
+
+
+npt new paradigm
+
+   when float turns off wait a minute
+
+   poll ntp every minute many times until it acks
+
+   if my_epoch is more than X seconds off fix it. try to leave it alone to see long-term drift just for the hell of it
+
+   same goes for rtc
+
+   same goes for master clock eventually
+
+   special log for timekeeping
+
+      null-terminated entries as long as screen columns
+
+   remember: esp and rtc and master can all be off by a minute and it will not affect online plots, right?
+
+try to remember that pulses critical is seconds between, not when they exactly happened. 
+
+   i need to send the delta to php. current mode is wrong where many sources of drift are involved. send an epoch
+
+      when float turns on copy my_epoch to float_epoch
+
+      when pulse arrives copy my_epoch to pulse_epoch and save master seconds 
+
+      when all the other pulses arrive calc the delta master seconds and add to pulse_epoch for php and my local file
+
+when displaying a log, don't pack all the other shit in, because it all comes from the heap and I want the largest log displays. same goes for show_file
+
+after i make a hardwired permanent circuit, how to disable xbee uart for uploading bug fixes? headers with a jumper. pull the jumper and install switch connected by two jumpers? or in a pinch just pull and replace the jumper for simple uploads
+rather than lots of debugging and repeated uploads
+
+at some specific time each day or more often check heap and log if it has changed
+
+audit gallons mess if it keeps failing
+
+online tank plot is too ragged
+
+
+new paradigm
+
+   keep files same as always, pruned to 24 hours, but during the day it can grow larger than that
+
+   when an event is added, add it to non-ack count. if that event is acked, set non-ack to zero. so, if 10 events are not acked, then send the newest 10 events
+
+   when pruning, if non-acked > actual events in list, fix the count
+
+   when sending, sanity check and don't try to send more events than are in the list
+
+   have 2 test web pages: one on the existing code which will run concurrently until the new checks out, then ditch the existing code since it cannot handle web outages
+
+   does this apply to everything?
+
+      tr1 tr2 flow are the same in every way
+
+      float is the same as those, right? now that i'm sending epoch for everything?
+
+      tank is similar except instead of sending state it will send level, but that's the same as far as esp files are concerned.
+
+      pulses... local file has dummy state i think, but should php? does it matter in terms of bandwidth, no. but php code needs to ignore the dummy value, so decide later on about this. does it make
+      andy sense to try to use same php code for everything? one common include file with flags?
+
+         some use states 1 0
+         tank has level 0..100
+         pulse has dummy value or no value
+         gallons is totally different
+
+   button to toggle between sending on every event and just pinging and nothing, and button to send block at any time, and maybe test sending a block that is "too large", meaning it contains events
+   that i know php already has; this will test potential screwup when php gets the data but somehow i don't see the ack or whatever.
+
+does tablet really let master clock get off by 120 seconds before fixing it?
+
+
+
+what should main page emphasize? things like uart millis should be secondary
+
+   seconds since last master only if bad?
+   time is known maybe only emphasize this if it's false, and then it's the only thing that matters since events are worthless and it appears the web is down and rtc is dead = catastrophe
+   uptime
+   recent bad packets only if bad
+   recent bad pings only if bad
+   if rpi is old emphasize this
+   if ntp is dead emphasize this
+   if a clock error is "large" emphasize this
+   tank if < 60
+
+   resets in last ?? days
+
+   HUGE NOTIFICATION when web or master or rtc is dead
+
+
+   so it looks like the top will be uptime and bad stuff. for simplicity, keep all the old crap as is in the bottom section which should follow any dump from a click, or maybe don't show at all for most clicks, just the dump.
+
+
+   then a gap
+
+   float on/off, etc. same order as android tablet or same order as proper web page??
+
+   then list all the other stuff separated by a gap
+
+   show tank writes since that's the only one i ever look at. maybe pulses too
+
+
+maybe a button to clear some bad counts: bad ck, bad ping, or maybe keep the all-time but reset a "trip counter" so i can see recent ones. 
+
+   or how hard to show bad events from last hour, last 24 hours, whatever? it would have to be stored with timestamp or maybe an array with tallies for each hour of the day might be the simplest approach
+
+   good_pings_today and bad_pings today might be acceptable if i also showed yesterday's totals. maybe that's the simplest approach. i don't really care so much about the last 24 hours. and if something looks odd
+   i can just note the current tally and look again later. or hell, keep track of this hour and last hour?
+
+
+
+
+revise gallons after master files work to send that value, or pulse count, larger? think about it.
+
+audit all the "master pulse count" code:
+
+   esp reset
+
+   master reset
+
+   0x15 processing
+
+   midnight processing
+
+
+filenames array full - can i use malloc so this never happens and the ram is available to other processes?
+
+colors for weekdays are different on x10 vs normal
+
+
+
+option to dump files in decimal millenium so it's quick to compare with online. hell, try to duplicate online format exactly so i can use diff or maybe a simple script
+
+figure out how to smooth tank plot. one data point every five or ten minutes then smooth the curve between or whatever
+
+xbee rs never changes so delete the button and check it once a day at midnight
+
+
+
+
+
+time shift is wrong when data is old. it shifts dream too much. the flow blocks are perfectly shifted, but the legend is shifted too much
+
+time_block.php reads old file wrong
+
+
+
+pulse block seems to have missed the very last one. how fucking much trouble to sort this out.
+
+
+setup pure_old can fail
+
+
+seconds since good ack is bullshit. says 0 dream 5 biz and neither has acked for 11 minutes
+
+
+maybe put died/reborn real times in null log since other log can fill up
+
+maybe not log every failed ping; increase the count: log the first, 10th 100th 1000 then every 3600 = hourly
+
+somewhere i need to see if wifi is good but web has disappeared, and restart_wifi
+
+if ntp and both new_pings don't work reset wifi once per hour. block send will recover ok
+
+
+
+
+
+
+
+use one xbee for all with buffers. like that i can let esp handle 0x15 acks. or will RS crap confuse local box
+
+
+send flow adc to web for a plot since i can't plot locally
+
+   it's the byte just past xbee
+
+   right now with flow off it's showing 0xD9 to 0xDE = 217..222 which agrees with android plot. that plot is about 210 to 250 high, 40 to 50 low and is pretty noisy so i'd like to have
+   decent resolution, but i don't look at it more than once per day normally, so why not dump it at that time only.
+
+   i get a value every minute of the day = 1440 bytes if i send them all packed and if i use spaces for separators 1440 x 3/2 = 2160 bytes = 2 kb which is nothing once or twice per day so just do that.
+
+   if i make a generic plotting deal on php then it might be used for other plots like xbee RS or anything.
+
+rtc looks like a second every day or two. at some point start syncing it every midnight.
+
+
+wtf rpi max. log the shit out of midnight
+
+maybe plot xbee RS daily or monthly? see if it varies long term, since it seems to be the same a lot
+
+does my code read_time_file twice? is this new or old too
+
+online switching sources for jay
+
+   let me easily edit a small text file to do it
+
+   let esp have a button to do it
+
+   test it once esp online files are clean enough
+
+   test it first in another fake web page that can access either source?
+
+   it seems to work except EVERY include in the other directory has to specify the path
+
+      and if this isn't based on the root then it won't work from within that directory, but i suppose i can handle that, but it might be nice to fix that messy part
+
+save xbee RS and rpi max temp in xeep daily and plot online
+
+   rpi max temp. fucking figure it out. log it all day long if need be, or every hour in null log. it's not rocket science.
+
+it sends flow cutoff every doy change. maybe put it in file and only send if it changes. then note the change in null log
+
+
+ntp ok at 03-10 20:44:43
+start handle_doy_change heap 26088
+begin add new datecode
+es2 0 0
+es2 2021066 1
+es2 2021067 2
+es2 2021068 3
+old datecode 0 37
+old datecode 2021066 101
+old datecode 2021067 129
+old datecode 2021068 91
+new datecode 2021069_106_
+end of add new datecode
+0_037_2021066_101_2021067_129_2021068_091_2021069_106_
+send gallons ack 200
+send time 0
+0_037_2021066_101_2021067_129_2021068_091_2021069_106_
+send gallons ack 200
+send time 0
+save rpi temp 144 at slot 1878 msb 7 lsb 86
+00:00:00
+in handle_doy_change: rpi_today_max 0 today_min 255
+end handle_doy_change heap 25872
+process_rpi: today_min 144
+process_rpi: today_max 144
+r 126 144
+00:02:51
+process_rpi: today_min 126
+r 127 126
+00:06:55
+r 128 127
+00:15:03
+save RS 50 at slot 1510 msb 5 lsb 230
+04:39:44
+
+float ... items 8 rows3 2
+03-11 03:30:24 0x01 1
+03-11 04:38:13 0x00 0 off at 4:38:13. RS sent at 4:39:44 = 1 minute 31 seconds later = perfect
+
+log rpi every hour for a few days. maybe plot it
+
+
+test switch again
+
+   mk_img7 on dream
+
+      change all includes
+
+      the backup files are on biz
+
+   if it works do everything and don't look back
+      
+      user@user-GA-78LMT-USB3-R2:/mtv/fake_home/html_birchwood/x10_test_esp8266$ grep include mk_img7.php
+      include 'draw_top_plots_part_1.php';
+      include 'draw_top_plots_part_2.php';
+      user@user-GA-78LMT-USB3-R2:/mtv/fake_home/html_birchwood/x10_test_esp8266$ grep include draw*
+      draw_top_plots_part_1.php:   include 'functions.php';   // this is only called here, but leave it because smaller files are easier to manage. or bring it here. // del
+      draw_top_plots_part_1.php:   include 'read_time_file.php'; 
+      draw_top_plots_part_2.php:   include 'generic_1.php';   // this is only called here, but leave it because smaller files are easier to manage. or bring it here.  // del
+      draw_top_plots_part_2.php:   include 'read_time_file.php';
+      draw_top_plots_part_2.php:   include 'status_rows.php';  // this is only called here, but leave it because smaller files are easier to manage. or bring it here. 
+      draw_top_plots_part_2.php:   include 'tank_status.php'; // this is only called here, but leave it because smaller files are easier to manage. or bring it here. 
+      user@user-GA-78LMT-USB3-R2:/mtv/fake_home/html_birchwood/x10_test_esp8266$ grep include gener*
+      user@user-GA-78LMT-USB3-R2:/mtv/fake_home/html_birchwood/x10_test_esp8266$ grep include read_time*
+      user@user-GA-78LMT-USB3-R2:/mtv/fake_home/html_birchwood/x10_test_esp8266$ grep include status_rows*
+      //include 'functions.php';
+      user@user-GA-78LMT-USB3-R2:/mtv/fake_home/html_birchwood/x10_test_esp8266$ grep include tank_status*
+      user@user-GA-78LMT-USB3-R2:/mtv/fake_home/html_birchwood/x10_test_esp8266$ 
+
+      rename functions and the other included files functions_esp, etc.
+
+
+>>> both draw_top* files read_time_file
+
+rpi temp is still confusing - SEEMS LIKE ANDROID HAS SAME ISSUE. is master clock off by a mile, or what? no, master simply relays it. i think rpi clock has drifted off, which makes sense.
+
+   wait for doy change
+
+   wait for new minimum
+
+      save the old max at that point
+
+   if it never happens before 3 am save whatever
+
+   i just set the clock to 10 but it's more like 11, so at midnight it will think it's 11 and will be sending the old data. assuming rpi is the one that resets it at midnight
+
+rpi seems to send 0 on reset, so ignore that too
+
+flow cutoff looks like it was fixed ok, but why no notification?
+
+it might be working now:
+
+   the switch.php has to chdir, then normal file names since we are in that dir
+
+   but "php" files that start in html seem to need "x10.../file.php" in the img src line. who the fuck knows why it seems to be back in the higher dir, but it seems to work. 
+
+   i need to do lots of testing to make sure it is 100% working in the x10 dir.
+
+   boilerplate? that's the MENU crap, and might be ok as is. need to look at it.
+
+      but fork needs it in both dirs, old one and x10
+
+      and main_file_functions.php
+
+   verify on my phones that the old menu still works even with switch. i'm not sure because the url says switch instead of water2, etc.
+
+   REMEMBER THAT water and water2 ARE DIFFERENT in the main and x10 dirs
+
+
+maybe get crazy and look at data is old, and if one is good and one is bad auto switch
+
+esp write to select_source.txt, both sites
+
+
+
+the new pulse-float code fills the plot with float if any pulses. the problem is right now a fake pulse came through, so maybe if the pulse count is ridiculously low (?) and no float events then don't draw float at all. the old code is ok in that respect.
+
+to use files in a subdirectory:
+
+   any html url link anywhere will point to something in the top directory. no way to avoid this.
+
+   that file in the top dir has to have php code to chdir and then the subdirectory files work fine
+
+   so, the old main menu is in the top dir and can be used by any file any where. 
+
+      any links in it that go to sub dirs have to use php switching code in a top-dir file
+
+   in the future when i want to silently link to either top dir or sub dir, the php switcher code in the top dir will look at a small text file in the top dir, and that switching code can use top dir or chdir to subdir
+
+   pulse plots have the four pulse links and the main menu link. all will go back to code in the top dir
+
+      to be just like it was before, the top dir pulse links will simply chdir to the sub dir. but i should go ahead and put the switcher code that reads the source_select.txt file because eventually that's how they will
+      work. just like all the switcher links, eventually they will go to the top dir android data or the sub dir esp data. 
+
+      i repeat: eventually every url link in any menu will go to a simple top dir switcher file that selects top dir android data or sub dir esp data. simple, actually.
+
+      and i think the switcher files will be same on any host since they only select top dir or sub dir, and if i name the sub dir the same then the same switcher code works, and i need these:
+
+         huge 
+
+         simple
+
+         p1
+         p2
+         p4
+         p8
+
+   question: can the html links leave off all the host crap?
+
+      To use a relative path, you just include the relative path, without any file: scheme or //. So if you have a file index.html, and want to refer to other_file.html in the same directory, you would just link directly to other_file.html with no scheme
+
+
+   for now it has to be more complex: all the old menus need to use the old files. the only switcher code should be on menu2 and x10 files 
+
+      this means different versions of waterp8 4 2 1 in top dir and x10 dir. top dir are old style.
+
+      x10 dir pulse files waterp8 etc will be accessible through menu2 and then they will all use switcher code for the 4 pulse links
+
+
+
+when biz is back online
+
+   main dir gets waterp1238 from my main dir - these user boilerplate but otherwise are old-style
+
+   main dir gets switchp1248 from my main dir. these are only used by menu2 and x10 pulse code. eventually the switcher code will be used by every url, but for now jay urls just go to old stuff
+
+   main dir gets menu2 from my x10 (i think. any menu2 should be the same). this allows me to get to x10 pulse world
+
+   x10 dir gets waterp1248 from my x10 - these have switcher links to stay in x10 world.
+
+
+
+dream pulse x10 might be using top dir code. should look a bit differnent
+      
+      wait. did i ever do mk_new_expanded? i thought i did
+
+      lol THE HTML GOES BACK TO THE TOP DIR
+      lol THE HTML GOES BACK TO THE TOP DIR
+      lol THE HTML GOES BACK TO THE TOP DIR
+      lol THE HTML GOES BACK TO THE TOP DIR
+      lol THE HTML GOES BACK TO THE TOP DIR
+
+rpi ack secs doesn't change until new value comes in. doesn't this mean i won't tell me if rpi is dead? it should increase from 0 steadily til the next one
+
+keep track of master pulse cnt to see if my algorithm works across resets. each day, add my pulse count to my tally and see how it tracks with master count while it does not reset. once it resets the only question
+is whether my total still agrees with the daily pulse totals. so, other than noting master resets, his count does not matter in this test.
+
+   
+
+   friday march 12 at 7:35
+
+      master_pulse_cnt 22 ... yesterday_master_cnt 1768 ... gallons_per_master_cnt 25 offset_cnt 1771 offset + master 1793
+
+      pulses so far today = 24, so my cnt at midnight was 1793 - 24 = 1769. so that says master reset today after the first two pulses. not that it matters but the gpm for that area is about half what it was right afterward, so maybe a pulse was missed.
+
+      since offset cnt is 1771 that says the reset was 1793 - 1771 = 22 counts ago, which agrees with master count. but the only thing i really have to check is whether or not MY count agrees with MY pulse count for each 24 hours.
+
+      right now they differ by 1: 1793 - 1768 = 25, but it should be 24. so, on each master reset is there an error of +1 pulses in the offset adjustment?
+
+
+
+
+
+
+
+
+3-12-2021 stop using this file and start using esp_todo.txt, php_todo.txt
+3-12-2021 stop using this file and start using esp_todo.txt, php_todo.txt
+3-12-2021 stop using this file and start using esp_todo.txt, php_todo.txt
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
