@@ -1,4 +1,0 @@
-# birchwood
-# go
-stop
-
