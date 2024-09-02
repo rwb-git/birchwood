@@ -3,5 +3,6 @@ and put the files from x10_test_directory in there. You will not have a director
 the folders like that, but it's not that hard to sort it out on your website.
 
 the box in the shed has an avr mega8535 which has the code from that directory. that box sends data to an esp8266 which sends it to your web site. you have to
-put your wifi router SSID and password in that code, along with your website path.
+put your wifi router SSID and password in that code, along with your website path in the variable dream_host. All the references to "dream" are because there used to
+be a backup site on another url. All you have to change is that one variable, dream_host.
 
