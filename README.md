@@ -5,7 +5,9 @@ switch crap, but I'd avoid that. The switching was back when an android tablet h
 in the sub directory. Once I switched the old system off there was no need to clean the mess up other than deleting most of the files in the top level directory that 
 the old system used.)
 
-the box in the shed has an avr mega8535 which has the code from that directory. that box sends data to an esp8266 which sends it to your web site. you have to
-put your wifi router SSID and password in that code, along with your website path in the variable dream_host. All the references to "dream" are because there used to
+the box in the shed has an avr mega8535 which has the code in directory mega8535_code. that box sends data to an esp8266 which sends it to your web site. you have to
+put your wifi router SSID and password in that device using code in directory esp8266_code, along with your website path in the variable dream_host. All the references to "dream" are because there used to
 be a backup site on another url. All you have to change is that one variable, dream_host.
+
+I used Arduino to program the esp8266 and avrdude to program the mega8535. 
 
